@@ -190,71 +190,1069 @@ document.addEventListener("DOMContentLoaded", function () {
 
 
     /* ==========================================
+       VISOR DE FOTOS / LIGHTBOX
+       ========================================== */
+
+    let visorFotos = null;
+    let imagenVisor = null;
+    let tituloVisor = null;
+    let botonAnterior = null;
+    let botonSiguiente = null;
+    let botonCerrar = null;
+
+    let fotosGaleria = [];
+    let indiceFotoActual = 0;
+
+
+    /* ==========================================
+       CREAR VISOR
+       ========================================== */
+
+    function crearVisorFotos() {
+
+        if (document.getElementById("visor-fotos")) {
+            return;
+        }
+
+
+        visorFotos =
+            document.createElement("div");
+
+        visorFotos.id =
+            "visor-fotos";
+
+        visorFotos.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        visorFotos.setAttribute(
+            "role",
+            "dialog"
+        );
+
+        visorFotos.setAttribute(
+            "aria-modal",
+            "true"
+        );
+
+
+        /* ======================================
+           BOTÓN CERRAR
+           ====================================== */
+
+        botonCerrar =
+            document.createElement("button");
+
+        botonCerrar.type = "button";
+
+        botonCerrar.className =
+            "visor-cerrar";
+
+        botonCerrar.innerHTML =
+            "&times;";
+
+        botonCerrar.setAttribute(
+            "aria-label",
+            "Cerrar imagen"
+        );
+
+
+        /* ======================================
+           BOTÓN ANTERIOR
+           ====================================== */
+
+        botonAnterior =
+            document.createElement("button");
+
+        botonAnterior.type = "button";
+
+        botonAnterior.className =
+            "visor-anterior";
+
+        botonAnterior.innerHTML =
+            "&#10094;";
+
+        botonAnterior.setAttribute(
+            "aria-label",
+            "Foto anterior"
+        );
+
+
+        /* ======================================
+           CONTENEDOR DE IMAGEN
+           ====================================== */
+
+        const contenido =
+            document.createElement("div");
+
+        contenido.className =
+            "visor-contenido";
+
+
+        imagenVisor =
+            document.createElement("img");
+
+        imagenVisor.className =
+            "visor-imagen";
+
+        imagenVisor.alt = "";
+
+
+        tituloVisor =
+            document.createElement("div");
+
+        tituloVisor.className =
+            "visor-titulo";
+
+
+        /* ======================================
+           BOTÓN SIGUIENTE
+           ====================================== */
+
+        botonSiguiente =
+            document.createElement("button");
+
+        botonSiguiente.type = "button";
+
+        botonSiguiente.className =
+            "visor-siguiente";
+
+        botonSiguiente.innerHTML =
+            "&#10095;";
+
+        botonSiguiente.setAttribute(
+            "aria-label",
+            "Foto siguiente"
+        );
+
+
+        /* ======================================
+           CONSTRUIR VISOR
+           ====================================== */
+
+        contenido.appendChild(
+            imagenVisor
+        );
+
+        contenido.appendChild(
+            tituloVisor
+        );
+
+
+        visorFotos.appendChild(
+            botonCerrar
+        );
+
+        visorFotos.appendChild(
+            botonAnterior
+        );
+
+        visorFotos.appendChild(
+            contenido
+        );
+
+        visorFotos.appendChild(
+            botonSiguiente
+        );
+
+
+        document.body.appendChild(
+            visorFotos
+        );
+
+
+        /* ======================================
+           ESTILOS DEL VISOR
+           ====================================== */
+
+        const estilos =
+            document.createElement("style");
+
+        estilos.id =
+            "estilos-visor-fotos";
+
+        estilos.textContent = `
+
+            #visor-fotos {
+                position: fixed;
+                inset: 0;
+                z-index: 999999;
+                display: none;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                padding: 20px;
+                box-sizing: border-box;
+                background: rgba(0, 0, 0, 0.94);
+                backdrop-filter: blur(5px);
+                -webkit-backdrop-filter: blur(5px);
+                opacity: 0;
+                transition: opacity 0.25s ease;
+            }
+
+
+            #visor-fotos.activo {
+                display: flex;
+                opacity: 1;
+            }
+
+
+            .visor-contenido {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                width: 100%;
+                height: 100%;
+                max-width: 1200px;
+                max-height: 100%;
+            }
+
+
+            .visor-imagen {
+                display: block;
+                width: auto;
+                height: auto;
+                max-width: calc(100vw - 140px);
+                max-height: calc(100vh - 110px);
+                object-fit: contain;
+                border-radius: 10px;
+                box-shadow:
+                    0 20px 70px rgba(0, 0, 0, 0.65);
+                user-select: none;
+                -webkit-user-select: none;
+                -webkit-touch-callout: none;
+            }
+
+
+            .visor-titulo {
+                margin-top: 12px;
+                max-width: 90%;
+                color: #ffffff;
+                text-align: center;
+                font-family:
+                    "Trebuchet MS",
+                    Arial,
+                    sans-serif;
+                font-size: 16px;
+                line-height: 1.4;
+                text-shadow:
+                    0 2px 5px rgba(0, 0, 0, 0.8);
+            }
+
+
+            .visor-cerrar,
+            .visor-anterior,
+            .visor-siguiente {
+                position: absolute;
+                z-index: 10;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 1px solid rgba(255, 255, 255, 0.35);
+                background: rgba(0, 0, 0, 0.55);
+                color: #ffffff;
+                cursor: pointer;
+                transition:
+                    background 0.2s ease,
+                    transform 0.2s ease;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+
+            .visor-cerrar:hover,
+            .visor-anterior:hover,
+            .visor-siguiente:hover {
+                background: rgba(255, 255, 255, 0.18);
+            }
+
+
+            .visor-cerrar:active,
+            .visor-anterior:active,
+            .visor-siguiente:active {
+                transform: scale(0.92);
+            }
+
+
+            .visor-cerrar {
+                top: 18px;
+                right: 22px;
+                width: 48px;
+                height: 48px;
+                border-radius: 50%;
+                font-size: 34px;
+                line-height: 1;
+            }
+
+
+            .visor-anterior,
+            .visor-siguiente {
+                top: 50%;
+                width: 54px;
+                height: 70px;
+                margin-top: -35px;
+                border-radius: 14px;
+                font-size: 38px;
+                line-height: 1;
+            }
+
+
+            .visor-anterior {
+                left: 20px;
+            }
+
+
+            .visor-siguiente {
+                right: 20px;
+            }
+
+
+            body.visor-abierto {
+                overflow: hidden;
+            }
+
+
+            .destino-card img {
+                cursor: zoom-in;
+            }
+
+
+            @media (max-width: 700px) {
+
+                #visor-fotos {
+                    padding: 10px;
+                }
+
+
+                .visor-imagen {
+                    max-width: calc(100vw - 70px);
+                    max-height: calc(100vh - 125px);
+                    border-radius: 7px;
+                }
+
+
+                .visor-cerrar {
+                    top: 10px;
+                    right: 10px;
+                    width: 44px;
+                    height: 44px;
+                    font-size: 31px;
+                }
+
+
+                .visor-anterior,
+                .visor-siguiente {
+                    width: 44px;
+                    height: 58px;
+                    margin-top: -29px;
+                    border-radius: 12px;
+                    font-size: 30px;
+                }
+
+
+                .visor-anterior {
+                    left: 7px;
+                }
+
+
+                .visor-siguiente {
+                    right: 7px;
+                }
+
+
+                .visor-titulo {
+                    margin-top: 8px;
+                    font-size: 14px;
+                    max-width: 82%;
+                }
+
+            }
+
+        `;
+
+        document.head.appendChild(
+            estilos
+        );
+
+
+        /* ======================================
+           EVENTOS DEL VISOR
+           ====================================== */
+
+        botonCerrar.addEventListener(
+            "click",
+            cerrarVisor
+        );
+
+
+        botonAnterior.addEventListener(
+            "click",
+            function (evento) {
+
+                evento.stopPropagation();
+
+                mostrarFotoAnterior();
+
+            }
+        );
+
+
+        botonSiguiente.addEventListener(
+            "click",
+            function (evento) {
+
+                evento.stopPropagation();
+
+                mostrarFotoSiguiente();
+
+            }
+        );
+
+
+        /* ======================================
+           CLIC EN EL FONDO PARA CERRAR
+           ====================================== */
+
+        visorFotos.addEventListener(
+            "click",
+            function (evento) {
+
+                if (
+                    evento.target === visorFotos
+                ) {
+
+                    cerrarVisor();
+
+                }
+
+            }
+        );
+
+
+        /* ======================================
+           TECLADO
+           ====================================== */
+
+        document.addEventListener(
+            "keydown",
+            function (evento) {
+
+                if (
+                    !visorFotos ||
+                    !visorFotos.classList.contains(
+                        "activo"
+                    )
+                ) {
+                    return;
+                }
+
+
+                if (evento.key === "Escape") {
+
+                    cerrarVisor();
+
+                    return;
+
+                }
+
+
+                if (
+                    evento.key === "ArrowLeft"
+                ) {
+
+                    evento.preventDefault();
+
+                    mostrarFotoAnterior();
+
+                    return;
+
+                }
+
+
+                if (
+                    evento.key === "ArrowRight"
+                ) {
+
+                    evento.preventDefault();
+
+                    mostrarFotoSiguiente();
+
+                }
+
+            }
+        );
+
+
+        /* ======================================
+           SWIPE PARA CELULARES
+           ====================================== */
+
+        let posicionInicialX = 0;
+        let posicionFinalX = 0;
+
+
+        visorFotos.addEventListener(
+            "touchstart",
+            function (evento) {
+
+                if (
+                    evento.touches &&
+                    evento.touches.length > 0
+                ) {
+
+                    posicionInicialX =
+                        evento.touches[0].clientX;
+
+                }
+
+            },
+            {
+                passive: true
+            }
+        );
+
+
+        visorFotos.addEventListener(
+            "touchend",
+            function (evento) {
+
+                if (
+                    evento.changedTouches &&
+                    evento.changedTouches.length > 0
+                ) {
+
+                    posicionFinalX =
+                        evento.changedTouches[0].clientX;
+
+                    procesarSwipe();
+
+                }
+
+            },
+            {
+                passive: true
+            }
+        );
+
+
+        function procesarSwipe() {
+
+            const diferencia =
+                posicionFinalX -
+                posicionInicialX;
+
+
+            const distanciaMinima =
+                50;
+
+
+            if (
+                Math.abs(diferencia) <
+                distanciaMinima
+            ) {
+
+                return;
+
+            }
+
+
+            if (diferencia > 0) {
+
+                mostrarFotoAnterior();
+
+            } else {
+
+                mostrarFotoSiguiente();
+
+            }
+
+        }
+
+    }
+
+
+    /* ==========================================
+       RECOPILAR TODAS LAS FOTOS
+       ========================================== */
+
+    function actualizarFotosGaleria() {
+
+        fotosGaleria = [];
+
+
+        configuracion.forEach(
+            function (item) {
+
+                const galeria =
+                    document.getElementById(
+                        item.galeria
+                    );
+
+
+                if (!galeria) {
+                    return;
+                }
+
+
+                const imagenes =
+                    galeria.querySelectorAll(
+                        ".destino-card img"
+                    );
+
+
+                imagenes.forEach(
+                    function (imagen) {
+
+                        fotosGaleria.push({
+
+                            src:
+                                imagen.src,
+
+                            alt:
+                                imagen.alt
+
+                        });
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    /* ==========================================
+       MOSTRAR FOTO
+       ========================================== */
+
+    function mostrarFoto(indice) {
+
+        if (
+            !visorFotos ||
+            !imagenVisor ||
+            fotosGaleria.length === 0
+        ) {
+            return;
+        }
+
+
+        if (
+            indice < 0
+        ) {
+
+            indice =
+                fotosGaleria.length - 1;
+
+        }
+
+
+        if (
+            indice >= fotosGaleria.length
+        ) {
+
+            indice = 0;
+
+        }
+
+
+        indiceFotoActual =
+            indice;
+
+
+        const foto =
+            fotosGaleria[indiceFotoActual];
+
+
+        imagenVisor.src =
+            foto.src;
+
+        imagenVisor.alt =
+            foto.alt;
+
+
+        tituloVisor.textContent =
+            foto.alt;
+
+
+        actualizarControlesVisor();
+
+    }
+
+
+    /* ==========================================
+       FOTO ANTERIOR
+       ========================================== */
+
+    function mostrarFotoAnterior() {
+
+        if (
+            fotosGaleria.length === 0
+        ) {
+            return;
+        }
+
+
+        mostrarFoto(
+            indiceFotoActual - 1
+        );
+
+    }
+
+
+    /* ==========================================
+       FOTO SIGUIENTE
+       ========================================== */
+
+    function mostrarFotoSiguiente() {
+
+        if (
+            fotosGaleria.length === 0
+        ) {
+            return;
+        }
+
+
+        mostrarFoto(
+            indiceFotoActual + 1
+        );
+
+    }
+
+
+    /* ==========================================
+       ACTUALIZAR CONTROLES
+       ========================================== */
+
+    function actualizarControlesVisor() {
+
+        if (!botonAnterior || !botonSiguiente) {
+            return;
+        }
+
+
+        const hayVariasFotos =
+            fotosGaleria.length > 1;
+
+
+        botonAnterior.style.display =
+            hayVariasFotos
+                ? "flex"
+                : "none";
+
+
+        botonSiguiente.style.display =
+            hayVariasFotos
+                ? "flex"
+                : "none";
+
+    }
+
+
+    /* ==========================================
+       ABRIR VISOR
+       ========================================== */
+
+    function abrirVisor(indice) {
+
+        if (
+            !visorFotos ||
+            fotosGaleria.length === 0
+        ) {
+            return;
+        }
+
+
+        mostrarFoto(indice);
+
+
+        visorFotos.style.display =
+            "flex";
+
+
+        document.body.classList.add(
+            "visor-abierto"
+        );
+
+
+        requestAnimationFrame(
+            function () {
+
+                visorFotos.classList.add(
+                    "activo"
+                );
+
+            }
+        );
+
+
+        visorFotos.setAttribute(
+            "aria-hidden",
+            "false"
+        );
+
+    }
+
+
+    /* ==========================================
+       CERRAR VISOR
+       ========================================== */
+
+    function cerrarVisor() {
+
+        if (!visorFotos) {
+            return;
+        }
+
+
+        visorFotos.classList.remove(
+            "activo"
+        );
+
+
+        visorFotos.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+
+        document.body.classList.remove(
+            "visor-abierto"
+        );
+
+
+        setTimeout(
+            function () {
+
+                if (
+                    visorFotos &&
+                    !visorFotos.classList.contains(
+                        "activo"
+                    )
+                ) {
+
+                    visorFotos.style.display =
+                        "none";
+
+                }
+
+            },
+            250
+        );
+
+    }
+
+
+    /* ==========================================
        CREAR TARJETAS DE DESTINOS
        ========================================== */
 
-    function crearTarjetas(lista, galeriaId) {
+    function crearTarjetas(
+        lista,
+        galeriaId
+    ) {
 
-        const galeria = document.getElementById(galeriaId);
+        const galeria =
+            document.getElementById(
+                galeriaId
+            );
+
 
         if (!galeria) {
+
             console.error(
                 "No se encontró la galería:",
                 galeriaId
             );
 
             return;
+
         }
+
 
         galeria.innerHTML = "";
 
 
-        lista.forEach(function (destino) {
+        lista.forEach(
+            function (destino) {
 
-            const tarjeta = document.createElement("div");
+                const tarjeta =
+                    document.createElement(
+                        "div"
+                    );
 
-            tarjeta.className = "destino-card";
-
-
-            const imagen = document.createElement("img");
-
-            imagen.src = destino.imagen;
-
-            imagen.alt = destino.nombre;
-
-            imagen.loading = "lazy";
+                tarjeta.className =
+                    "destino-card";
 
 
-            const titulo = document.createElement("h5");
+                const imagen =
+                    document.createElement(
+                        "img"
+                    );
 
-            titulo.textContent = destino.nombre;
+                imagen.src =
+                    destino.imagen;
+
+                imagen.alt =
+                    destino.nombre;
+
+                imagen.loading =
+                    "lazy";
+
+                imagen.setAttribute(
+                    "role",
+                    "button"
+                );
+
+                imagen.setAttribute(
+                    "tabindex",
+                    "0"
+                );
+
+                imagen.setAttribute(
+                    "aria-label",
+                    "Ampliar foto de " +
+                    destino.nombre
+                );
 
 
-            tarjeta.appendChild(imagen);
+                /* ==================================
+                   ABRIR FOTO AL HACER CLICK
+                   ================================== */
 
-            tarjeta.appendChild(titulo);
+                imagen.addEventListener(
+                    "click",
+                    function () {
 
-            galeria.appendChild(tarjeta);
+                        actualizarFotosGaleria();
 
-        });
+                        const indice =
+                            fotosGaleria.findIndex(
+                                function (foto) {
+
+                                    return (
+                                        foto.src ===
+                                        imagen.src
+                                    );
+
+                                }
+                            );
+
+
+                        abrirVisor(
+                            indice >= 0
+                                ? indice
+                                : 0
+                        );
+
+                    }
+                );
+
+
+                /* ==================================
+                   ABRIR FOTO CON ENTER O ESPACIO
+                   ================================== */
+
+                imagen.addEventListener(
+                    "keydown",
+                    function (evento) {
+
+                        if (
+                            evento.key ===
+                            "Enter" ||
+                            evento.key ===
+                            " "
+                        ) {
+
+                            evento.preventDefault();
+
+                            actualizarFotosGaleria();
+
+
+                            const indice =
+                                fotosGaleria.findIndex(
+                                    function (foto) {
+
+                                        return (
+                                            foto.src ===
+                                            imagen.src
+                                        );
+
+                                    }
+                                );
+
+
+                            abrirVisor(
+                                indice >= 0
+                                    ? indice
+                                    : 0
+                            );
+
+                        }
+
+                    }
+                );
+
+
+                const titulo =
+                    document.createElement(
+                        "h5"
+                    );
+
+                titulo.textContent =
+                    destino.nombre;
+
+
+                tarjeta.appendChild(
+                    imagen
+                );
+
+                tarjeta.appendChild(
+                    titulo
+                );
+
+                galeria.appendChild(
+                    tarjeta
+                );
+
+            }
+        );
 
     }
+
+
+    /* ==========================================
+       CREAR VISOR ANTES DE LAS GALERÍAS
+       ========================================== */
+
+    crearVisorFotos();
 
 
     /* ==========================================
        OCULTAR LAS SECCIONES AL INICIAR
        ========================================== */
 
-    configuracion.forEach(function (item) {
+    configuracion.forEach(
+        function (item) {
 
-        const seccion =
-            document.getElementById(item.seccion);
+            const seccion =
+                document.getElementById(
+                    item.seccion
+                );
 
-        if (seccion) {
-            seccion.style.display = "none";
+
+            if (seccion) {
+
+                seccion.style.display =
+                    "none";
+
+            }
+
         }
-
-    });
+    );
 
 
     /* ==========================================
@@ -266,20 +1264,30 @@ document.addEventListener("DOMContentLoaded", function () {
         "galeria-playa"
     );
 
+
     crearTarjetas(
         destinos.montanas,
         "galeria-montanas"
     );
+
 
     crearTarjetas(
         destinos.cultura,
         "galeria-cultura"
     );
 
+
     crearTarjetas(
         destinos.lugares,
         "galeria-lugares"
     );
+
+
+    /* ==========================================
+       ACTUALIZAR LISTA DE FOTOS
+       ========================================== */
+
+    actualizarFotosGaleria();
 
 
     /* ==========================================
@@ -291,61 +1299,82 @@ document.addEventListener("DOMContentLoaded", function () {
         const seccion =
             document.getElementById(id);
 
+
         const boton =
             document.querySelector(
-                'button[aria-controls="' + id + '"]'
+                'button[aria-controls="' +
+                id +
+                '"]'
             );
 
 
-        if (!seccion || !boton) {
+        if (
+            !seccion ||
+            !boton
+        ) {
+
             console.error(
                 "No se encontró la sección o el botón:",
                 id
             );
 
             return;
+
         }
 
 
         const estabaAbierta =
-            seccion.style.display === "block";
+            seccion.style.display ===
+            "block";
 
 
         /* Cerrar todas las secciones */
 
-        configuracion.forEach(function (item) {
+        configuracion.forEach(
+            function (item) {
 
-            const otraSeccion =
-                document.getElementById(item.seccion);
-
-            const otroBoton =
-                document.querySelector(
-                    'button[aria-controls="' +
-                    item.seccion +
-                    '"]'
-                );
+                const otraSeccion =
+                    document.getElementById(
+                        item.seccion
+                    );
 
 
-            if (otraSeccion) {
-                otraSeccion.style.display = "none";
+                const otroBoton =
+                    document.querySelector(
+                        'button[aria-controls="' +
+                        item.seccion +
+                        '"]'
+                    );
+
+
+                if (otraSeccion) {
+
+                    otraSeccion.style.display =
+                        "none";
+
+                }
+
+
+                if (otroBoton) {
+
+                    otroBoton.setAttribute(
+                        "aria-expanded",
+                        "false"
+                    );
+
+                }
+
             }
-
-
-            if (otroBoton) {
-                otroBoton.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
-            }
-
-        });
+        );
 
 
         /* Si estaba cerrada, abrirla */
 
         if (!estabaAbierta) {
 
-            seccion.style.display = "block";
+            seccion.style.display =
+                "block";
+
 
             boton.setAttribute(
                 "aria-expanded",
@@ -361,32 +1390,34 @@ document.addEventListener("DOMContentLoaded", function () {
        CONECTAR SOLAMENTE LOS BOTONES DE DESTINOS
        ========================================== */
 
-    configuracion.forEach(function (item) {
+    configuracion.forEach(
+        function (item) {
 
-        const boton =
-            document.querySelector(
-                'button[aria-controls="' +
-                item.seccion +
-                '"]'
-            );
+            const boton =
+                document.querySelector(
+                    'button[aria-controls="' +
+                    item.seccion +
+                    '"]'
+                );
 
 
-        if (boton) {
+            if (boton) {
 
-            boton.addEventListener(
-                "click",
-                function () {
+                boton.addEventListener(
+                    "click",
+                    function () {
 
-                    alternarSeccion(
-                        item.seccion
-                    );
+                        alternarSeccion(
+                            item.seccion
+                        );
 
-                }
-            );
+                    }
+                );
+
+            }
 
         }
-
-    });
+    );
 
 
     /* ==========================================
@@ -398,15 +1429,18 @@ document.addEventListener("DOMContentLoaded", function () {
             "abrir-comunidad"
         );
 
+
     const botonCerrarComunidad =
         document.getElementById(
             "cerrar-comunidad"
         );
 
+
     const formularioComunidad =
         document.getElementById(
             "formulario-comunidad"
         );
+
 
     const formularioExperiencia =
         document.getElementById(
@@ -427,12 +1461,14 @@ document.addEventListener("DOMContentLoaded", function () {
             );
 
             return;
+
         }
 
 
         formularioComunidad.classList.add(
             "activo"
         );
+
 
         formularioComunidad.setAttribute(
             "aria-hidden",
@@ -472,6 +1508,7 @@ document.addEventListener("DOMContentLoaded", function () {
         formularioComunidad.classList.remove(
             "activo"
         );
+
 
         formularioComunidad.setAttribute(
             "aria-hidden",
@@ -523,13 +1560,19 @@ document.addEventListener("DOMContentLoaded", function () {
        ABRIR COMUNIDAD DESDE OTRA PÁGINA
        ========================================== */
 
-    if (window.location.hash === "#comunidad") {
+    if (
+        window.location.hash ===
+        "#comunidad"
+    ) {
 
-        setTimeout(function () {
+        setTimeout(
+            function () {
 
-            abrirComunidad();
+                abrirComunidad();
 
-        }, 100);
+            },
+            100
+        );
 
     }
 
@@ -555,14 +1598,17 @@ document.addEventListener("DOMContentLoaded", function () {
                     selectorFotos.files.length;
 
 
-                if (cantidadFotos > 2) {
+                if (
+                    cantidadFotos > 2
+                ) {
 
                     alert(
                         "Puedes seleccionar un máximo de 2 fotos."
                     );
 
 
-                    selectorFotos.value = "";
+                    selectorFotos.value =
+                        "";
 
                 }
 
@@ -584,92 +1630,173 @@ document.addEventListener("DOMContentLoaded", function () {
                 "mensaje-exito-comunidad"
             );
 
+
         if (existente) {
+
             existente.remove();
+
         }
 
 
         const pantalla =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
+
 
         pantalla.id =
             "mensaje-exito-comunidad";
 
 
-        pantalla.style.position = "fixed";
-        pantalla.style.inset = "0";
-        pantalla.style.zIndex = "99999";
-        pantalla.style.display = "flex";
-        pantalla.style.alignItems = "center";
-        pantalla.style.justifyContent = "center";
+        pantalla.style.position =
+            "fixed";
+
+        pantalla.style.inset =
+            "0";
+
+        pantalla.style.zIndex =
+            "99999";
+
+        pantalla.style.display =
+            "flex";
+
+        pantalla.style.alignItems =
+            "center";
+
+        pantalla.style.justifyContent =
+            "center";
+
         pantalla.style.background =
             "rgba(3, 20, 29, 0.72)";
+
         pantalla.style.backdropFilter =
             "blur(5px)";
-        pantalla.style.padding = "20px";
-        pantalla.style.boxSizing = "border-box";
+
+        pantalla.style.padding =
+            "20px";
+
+        pantalla.style.boxSizing =
+            "border-box";
 
 
         const tarjeta =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        tarjeta.style.width = "min(90%, 520px)";
-        tarjeta.style.padding = "40px 30px";
-        tarjeta.style.borderRadius = "28px";
-        tarjeta.style.textAlign = "center";
+
+        tarjeta.style.width =
+            "min(90%, 520px)";
+
+        tarjeta.style.padding =
+            "40px 30px";
+
+        tarjeta.style.borderRadius =
+            "28px";
+
+        tarjeta.style.textAlign =
+            "center";
+
         tarjeta.style.background =
             "linear-gradient(145deg, #03141d, #0a2d39)";
+
         tarjeta.style.border =
             "1px solid rgba(217, 181, 109, 0.55)";
+
         tarjeta.style.boxShadow =
             "0 25px 70px rgba(0,0,0,0.40)";
+
         tarjeta.style.fontFamily =
             '"Trebuchet MS", Arial, sans-serif';
 
 
         const pulgar =
-            document.createElement("div");
+            document.createElement(
+                "div"
+            );
 
-        pulgar.textContent = "👍";
-        pulgar.style.fontSize = "72px";
-        pulgar.style.lineHeight = "1";
-        pulgar.style.marginBottom = "20px";
+
+        pulgar.textContent =
+            "👍";
+
+        pulgar.style.fontSize =
+            "72px";
+
+        pulgar.style.lineHeight =
+            "1";
+
+        pulgar.style.marginBottom =
+            "20px";
+
         pulgar.style.animation =
             "subirPulgar 0.65s ease";
 
 
         const titulo =
-            document.createElement("h2");
+            document.createElement(
+                "h2"
+            );
+
 
         titulo.textContent =
             "¡Gracias por compartir tu experiencia!";
 
-        titulo.style.margin = "0";
-        titulo.style.color = "#ffffff";
-        titulo.style.fontSize = "clamp(22px, 5vw, 30px)";
-        titulo.style.lineHeight = "1.25";
+        titulo.style.margin =
+            "0";
+
+        titulo.style.color =
+            "#ffffff";
+
+        titulo.style.fontSize =
+            "clamp(22px, 5vw, 30px)";
+
+        titulo.style.lineHeight =
+            "1.25";
 
 
         const texto =
-            document.createElement("p");
+            document.createElement(
+                "p"
+            );
+
 
         texto.textContent =
             "Tu opinión es muy importante para Tu Coro RD Tours.";
 
         texto.style.margin =
             "15px 0 0";
-        texto.style.color = "#dceff0";
-        texto.style.fontSize = "16px";
-        texto.style.lineHeight = "1.6";
+
+        texto.style.color =
+            "#dceff0";
+
+        texto.style.fontSize =
+            "16px";
+
+        texto.style.lineHeight =
+            "1.6";
 
 
-        tarjeta.appendChild(pulgar);
-        tarjeta.appendChild(titulo);
-        tarjeta.appendChild(texto);
+        tarjeta.appendChild(
+            pulgar
+        );
 
-        pantalla.appendChild(tarjeta);
+        tarjeta.appendChild(
+            titulo
+        );
 
-        document.body.appendChild(pantalla);
+        tarjeta.appendChild(
+            texto
+        );
+
+
+        pantalla.appendChild(
+            tarjeta
+        );
+
+
+        document.body.appendChild(
+            pantalla
+        );
 
 
         /* ==========================================
@@ -683,43 +1810,75 @@ document.addEventListener("DOMContentLoaded", function () {
         ) {
 
             const estilos =
-                document.createElement("style");
+                document.createElement(
+                    "style"
+                );
+
 
             estilos.id =
                 "estilos-exito-comunidad";
 
+
             estilos.textContent = `
+
                 @keyframes subirPulgar {
+
                     0% {
-                        transform: translateY(35px) scale(0.5);
+                        transform:
+                            translateY(35px)
+                            scale(0.5);
+
                         opacity: 0;
                     }
+
 
                     60% {
-                        transform: translateY(-8px) scale(1.12);
+                        transform:
+                            translateY(-8px)
+                            scale(1.12);
+
                         opacity: 1;
                     }
 
+
                     100% {
-                        transform: translateY(0) scale(1);
+                        transform:
+                            translateY(0)
+                            scale(1);
+
                         opacity: 1;
                     }
+
                 }
+
 
                 @keyframes confetiCaer {
+
                     0% {
-                        transform: translateY(-20px) rotate(0deg);
+                        transform:
+                            translateY(-20px)
+                            rotate(0deg);
+
                         opacity: 1;
                     }
 
+
                     100% {
-                        transform: translateY(100vh) rotate(720deg);
+                        transform:
+                            translateY(100vh)
+                            rotate(720deg);
+
                         opacity: 0;
                     }
+
                 }
+
             `;
 
-            document.head.appendChild(estilos);
+
+            document.head.appendChild(
+                estilos
+            );
 
         }
 
@@ -728,22 +1887,45 @@ document.addEventListener("DOMContentLoaded", function () {
            CREAR CONFETI
            ========================================== */
 
-        for (let i = 0; i < 45; i++) {
+        for (
+            let i = 0;
+            i < 45;
+            i++
+        ) {
 
             const confeti =
-                document.createElement("span");
+                document.createElement(
+                    "span"
+                );
+
 
             confeti.textContent =
-                i % 2 === 0 ? "✦" : "•";
+                i % 2 === 0
+                    ? "✦"
+                    : "•";
 
-            confeti.style.position = "fixed";
+
+            confeti.style.position =
+                "fixed";
+
             confeti.style.left =
-                Math.random() * 100 + "vw";
+                Math.random() * 100 +
+                "vw";
+
             confeti.style.top =
                 "-20px";
-            confeti.style.zIndex = "100000";
+
+            confeti.style.zIndex =
+                "100000";
+
             confeti.style.fontSize =
-                (10 + Math.random() * 18) + "px";
+                (
+                    10 +
+                    Math.random() * 18
+                ) +
+                "px";
+
+
             confeti.style.color =
                 i % 3 === 0
                     ? "#18d6c5"
@@ -751,18 +1933,30 @@ document.addEventListener("DOMContentLoaded", function () {
                         ? "#d9b56d"
                         : "#ffffff";
 
+
             confeti.style.pointerEvents =
                 "none";
 
+
             confeti.style.animation =
                 "confetiCaer " +
-                (2 + Math.random() * 2) +
+                (
+                    2 +
+                    Math.random() * 2
+                ) +
                 "s linear forwards";
 
-            confeti.style.animationDelay =
-                (Math.random() * 0.5) + "s";
 
-            pantalla.appendChild(confeti);
+            confeti.style.animationDelay =
+                (
+                    Math.random() * 0.5
+                ) +
+                "s";
+
+
+            pantalla.appendChild(
+                confeti
+            );
 
         }
 
@@ -771,19 +1965,28 @@ document.addEventListener("DOMContentLoaded", function () {
            CERRAR MENSAJE
            ========================================== */
 
-        setTimeout(function () {
+        setTimeout(
+            function () {
 
-            pantalla.style.opacity = "0";
-            pantalla.style.transition =
-                "opacity 0.5s ease";
+                pantalla.style.opacity =
+                    "0";
 
-            setTimeout(function () {
+                pantalla.style.transition =
+                    "opacity 0.5s ease";
 
-                pantalla.remove();
 
-            }, 500);
+                setTimeout(
+                    function () {
 
-        }, 4000);
+                        pantalla.remove();
+
+                    },
+                    500
+                );
+
+            },
+            4000
+        );
 
     }
 
@@ -811,7 +2014,9 @@ document.addEventListener("DOMContentLoaded", function () {
                    VERIFICAR MÁXIMO DE FOTOS
                    ========================================== */
 
-                if (fotos.length > 2) {
+                if (
+                    fotos.length > 2
+                ) {
 
                     alert(
                         "Puedes seleccionar un máximo de 2 fotos."
@@ -827,7 +2032,8 @@ document.addEventListener("DOMContentLoaded", function () {
                    FormSubmit permite hasta 10 MB.
                    ========================================== */
 
-                let tamanioTotal = 0;
+                let tamanioTotal =
+                    0;
 
 
                 for (
@@ -846,7 +2052,10 @@ document.addEventListener("DOMContentLoaded", function () {
                     10 * 1024 * 1024;
 
 
-                if (tamanioTotal > limite) {
+                if (
+                    tamanioTotal >
+                    limite
+                ) {
 
                     alert(
                         "Las fotos seleccionadas superan el límite total de 10 MB. Por favor, selecciona fotos más pequeñas."
@@ -864,8 +2073,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 formularioExperiencia.method =
                     "POST";
 
+
                 formularioExperiencia.enctype =
                     "multipart/form-data";
+
 
                 formularioExperiencia.action =
                     "https://formsubmit.co/contacto@tucorord.tours";
@@ -890,14 +2101,18 @@ document.addEventListener("DOMContentLoaded", function () {
                             "iframe"
                         );
 
+
                     iframeEnvio.id =
                         "iframe-envio-comunidad";
+
 
                     iframeEnvio.name =
                         "iframe-envio-comunidad";
 
+
                     iframeEnvio.style.display =
                         "none";
+
 
                     document.body.appendChild(
                         iframeEnvio
@@ -927,11 +2142,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             "input"
                         );
 
+
                     campoAsunto.type =
                         "hidden";
 
+
                     campoAsunto.name =
                         "_subject";
+
 
                     formularioExperiencia.appendChild(
                         campoAsunto
@@ -957,11 +2175,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             "input"
                         );
 
+
                     campoPlantilla.type =
                         "hidden";
 
+
                     campoPlantilla.name =
                         "_template";
+
 
                     formularioExperiencia.appendChild(
                         campoPlantilla
@@ -991,11 +2212,14 @@ document.addEventListener("DOMContentLoaded", function () {
                             "input"
                         );
 
+
                     campoUrl.type =
                         "hidden";
 
+
                     campoUrl.name =
                         "_url";
+
 
                     formularioExperiencia.appendChild(
                         campoUrl
@@ -1028,12 +2252,14 @@ document.addEventListener("DOMContentLoaded", function () {
                    LIMPIAR FORMULARIO DESPUÉS DEL ENVÍO
                    ========================================== */
 
-                setTimeout(function () {
+                setTimeout(
+                    function () {
 
-                    formularioExperiencia.reset();
+                        formularioExperiencia.reset();
 
-                }, 500);
-
+                    },
+                    500
+                );
 
             }
         );
@@ -1049,12 +2275,19 @@ document.addEventListener("DOMContentLoaded", function () {
         "TucorordTours: JavaScript cargado correctamente."
     );
 
+
     console.log(
         "TucorordTours: Comunidad preparada correctamente."
     );
 
+
     console.log(
         "TucorordTours: Sistema de envío de experiencias preparado."
+    );
+
+
+    console.log(
+        "TucorordTours: Visor de fotografías preparado correctamente."
     );
 
 });

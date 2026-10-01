@@ -27,16 +27,19 @@
     --radio: 20px;
 }
 
-
 /* ==============================
    RESETEO GENERAL
    ============================== */
 
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 html {
+    width: 100%;
+    max-width: 100%;
     scroll-behavior: smooth;
     overflow-x: hidden;
 }
@@ -66,15 +69,42 @@ body {
     margin: 0;
     padding: 0;
 
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
+
     overflow-x: hidden;
+
+    -webkit-text-size-adjust: 100%;
 }
 
 img {
     display: block;
     max-width: 100%;
+    height: auto;
 }
 
+button,
+input,
+textarea,
+select {
+    box-sizing: border-box;
+    max-width: 100%;
+    font: inherit;
+}
+
+a {
+    overflow-wrap: anywhere;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+p {
+    overflow-wrap: break-word;
+}
 
 /* ==============================
    ENCABEZADO
@@ -98,8 +128,9 @@ header {
         0 8px 30px rgba(0, 0, 0, 0.18);
 
     overflow: hidden;
-}
 
+    width: 100%;
+}
 
 /* ==============================
    TÍTULO PRINCIPAL
@@ -130,7 +161,6 @@ header {
     overflow-wrap: anywhere;
 }
 
-
 /* ==============================
    NAVEGACIÓN
    ============================== */
@@ -157,6 +187,10 @@ nav ul {
     padding: 0;
 
     width: 100%;
+}
+
+nav li {
+    min-width: 0;
 }
 
 nav a {
@@ -192,7 +226,6 @@ nav a:hover {
         translateY(-2px);
 }
 
-
 /* ==============================
    TEXTO DEL HEADER
    ============================== */
@@ -212,8 +245,10 @@ header > p {
 
     padding-bottom:
         22px;
-}
 
+    overflow-wrap:
+        anywhere;
+}
 
 /* ==============================
    HERO
@@ -235,6 +270,9 @@ header > p {
 
     background-size:
         cover;
+
+    background-repeat:
+        no-repeat;
 
     border-radius:
         22px 22px 0 0;
@@ -266,7 +304,6 @@ header > p {
     width:
         100%;
 }
-
 
 /* ==============================
    BRILLO DECORATIVO
@@ -307,7 +344,6 @@ header > p {
     max-width:
         100vw;
 }
-
 
 /* ==============================
    CONTENIDO DEL HERO
@@ -378,8 +414,10 @@ header > p {
 
     text-shadow:
         0 2px 10px rgba(0, 0, 0, 0.55);
-}
 
+    overflow-wrap:
+        anywhere;
+}
 
 /* ==============================
    ETIQUETAS PREMIUM
@@ -410,7 +448,6 @@ header > p {
     margin-bottom:
         18px;
 }
-
 
 /* ==============================
    BOTÓN PRINCIPAL DEL HERO
@@ -475,7 +512,6 @@ header > p {
         translateY(-4px);
 }
 
-
 /* ==============================
    CONTENIDO PRINCIPAL
    ============================== */
@@ -492,6 +528,9 @@ main {
 
     width:
         100%;
+
+    min-width:
+        0;
 }
 
 main h2 {
@@ -503,7 +542,6 @@ main p {
     margin-top:
         0;
 }
-
 
 /* ==============================
    ENCABEZADOS DE SECCIÓN
@@ -529,7 +567,6 @@ main p {
     margin-bottom:
         8px;
 }
-
 
 /* ==============================
    PRESENTACIÓN
@@ -567,6 +604,9 @@ main p {
     transition:
         transform 0.3s ease,
         box-shadow 0.3s ease;
+
+    width:
+        100%;
 }
 
 #presentacion:hover {
@@ -605,7 +645,6 @@ main p {
     max-width:
         720px;
 }
-
 
 /* ==============================
    BOTÓN SECUNDARIO
@@ -657,7 +696,6 @@ main p {
         translateY(-3px);
 }
 
-
 /* ==================================================
    ¿POR QUÉ tu coro rd tours?
    ================================================== */
@@ -693,7 +731,6 @@ main p {
         var(--color-texto-suave);
 }
 
-
 /* ==============================
    TARJETAS DE BENEFICIOS
    ============================== */
@@ -706,7 +743,7 @@ main p {
         22px;
 
     grid-template-columns:
-        repeat(4, 1fr);
+        repeat(4, minmax(0, 1fr));
 
     margin:
         0 auto;
@@ -754,6 +791,9 @@ main p {
         transform 0.35s ease,
         box-shadow 0.35s ease,
         border-color 0.35s ease;
+
+    min-width:
+        0;
 }
 
 .beneficio-card::before {
@@ -870,7 +910,6 @@ main p {
         relative;
 }
 
-
 /* ==================================================
    SECCIÓN EXPERIENCIA
    ================================================== */
@@ -909,6 +948,9 @@ main p {
 
     text-align:
         center;
+
+    width:
+        100%;
 }
 
 #experiencia::before {
@@ -942,6 +984,9 @@ main p {
 
     width:
         400px;
+
+    max-width:
+        100%;
 }
 
 .experiencia-contenido {
@@ -950,6 +995,9 @@ main p {
 
     z-index:
         1;
+
+    min-width:
+        0;
 }
 
 .experiencia-contenido h2 {
@@ -1026,7 +1074,6 @@ main p {
         translateY(-4px);
 }
 
-
 /* ==================================================
    REDES SOCIALES
    ================================================== */
@@ -1046,6 +1093,9 @@ main p {
 
     padding:
         20px 0;
+
+    width:
+        100%;
 }
 
 #redes:hover {
@@ -1076,7 +1126,6 @@ main p {
         var(--color-texto-suave);
 }
 
-
 /* ==============================
    GRID DE REDES
    ============================== */
@@ -1089,7 +1138,7 @@ main p {
         18px;
 
     grid-template-columns:
-        repeat(4, 1fr);
+        repeat(4, minmax(0, 1fr));
 
     margin:
         0 auto;
@@ -1098,6 +1147,10 @@ main p {
         1000px;
 }
 
+.redes-grid > * {
+    min-width:
+        0;
+}
 
 /* ==============================
    TARJETAS DE REDES
@@ -1148,6 +1201,9 @@ main p {
         transform 0.35s ease,
         box-shadow 0.35s ease,
         border-color 0.35s ease;
+
+    min-width:
+        0;
 }
 
 .red-social:hover {
@@ -1205,6 +1261,9 @@ main p {
 
     width:
         58px;
+
+    flex-shrink:
+        0;
 }
 
 .red-nombre {
@@ -1223,6 +1282,9 @@ main p {
 
     font-weight:
         bold;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .red-usuario {
@@ -1237,6 +1299,9 @@ main p {
 
     overflow-wrap:
         anywhere;
+
+    word-break:
+        break-word;
 }
 
 .red-proximamente {
@@ -1271,7 +1336,6 @@ main p {
         uppercase;
 }
 
-
 /* ==================================================
    CONTACTO
    ================================================== */
@@ -1295,6 +1359,9 @@ main p {
 
     max-width:
         1100px;
+
+    width:
+        100%;
 }
 
 #contacto .seccion-etiqueta {
@@ -1319,7 +1386,6 @@ main p {
         rgba(255, 255, 255, 0.72);
 }
 
-
 /* ==============================
    GRID DE CONTACTO
    ============================== */
@@ -1332,7 +1398,7 @@ main p {
         18px;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(3, minmax(0, 1fr));
 
     margin-top:
         35px;
@@ -1368,6 +1434,9 @@ main p {
 
     min-width:
         0;
+
+    overflow:
+        hidden;
 
     transition:
         background-color 0.3s ease,
@@ -1472,7 +1541,6 @@ main p {
         var(--color-dorado-hover) !important;
 }
 
-
 /* ==================================================
    COMUNIDAD
    ================================================== */
@@ -1480,6 +1548,9 @@ main p {
 .comunidad-item {
     position:
         relative;
+
+    min-width:
+        0;
 }
 
 .boton-comunidad {
@@ -1554,7 +1625,6 @@ main p {
         translateX(3px);
 }
 
-
 /* ==================================================
    FORMULARIO DE COMUNIDAD
    ================================================== */
@@ -1593,6 +1663,9 @@ main p {
 
     position:
         relative;
+
+    width:
+        100%;
 }
 
 .comunidad-formulario.activo {
@@ -1658,6 +1731,9 @@ main p {
 
     z-index:
         1;
+
+    min-width:
+        0;
 }
 
 .comunidad-formulario .encabezado-seccion {
@@ -1694,7 +1770,6 @@ main p {
         650px;
 }
 
-
 /* ==================================================
    CAMPOS DEL FORMULARIO
    ================================================== */
@@ -1708,6 +1783,9 @@ main p {
 
     gap:
         24px;
+
+    width:
+        100%;
 }
 
 .campo-formulario {
@@ -1719,6 +1797,12 @@ main p {
 
     gap:
         8px;
+
+    width:
+        100%;
+
+    min-width:
+        0;
 }
 
 .campo-formulario label {
@@ -1775,6 +1859,9 @@ main p {
         border-color 0.3s ease,
         background-color 0.3s ease,
         box-shadow 0.3s ease;
+
+    width:
+        100%;
 }
 
 .campo-formulario input[type="text"]::placeholder,
@@ -1802,7 +1889,6 @@ main p {
     box-shadow:
         0 0 0 3px rgba(24, 214, 197, 0.10);
 }
-
 
 /* ==================================================
    CARGA DE FOTOS
@@ -1885,7 +1971,6 @@ main p {
         0 !important;
 }
 
-
 /* ==================================================
    AUTORIZACIÓN
    ================================================== */
@@ -1911,6 +1996,9 @@ main p {
 
     padding:
         15px;
+
+    min-width:
+        0;
 }
 
 .campo-checkbox input[type="checkbox"] {
@@ -1945,8 +2033,10 @@ main p {
 
     line-height:
         1.5;
-}
 
+    overflow-wrap:
+        anywhere;
+}
 
 /* ==================================================
    BOTONES DE COMUNIDAD
@@ -2024,7 +2114,6 @@ main p {
         var(--color-dorado-hover);
 }
 
-
 /* ==============================
    GALERÍA GENERAL
    ============================== */
@@ -2044,6 +2133,9 @@ main p {
 
     width:
         100%;
+
+    min-width:
+        0;
 }
 
 #galeria h2 {
@@ -2113,7 +2205,6 @@ main p {
         translateY(-4px);
 }
 
-
 /* ==============================
    DESTINOS
    ============================== */
@@ -2161,7 +2252,6 @@ main p {
         center;
 }
 
-
 /* ==================================================
    TARJETAS DE CATEGORÍAS DE DESTINOS
    ================================================== */
@@ -2206,6 +2296,9 @@ article:not(.beneficio-card) {
 
     width:
         100%;
+
+    min-width:
+        0;
 }
 
 article:not(.beneficio-card)::before {
@@ -2318,7 +2411,6 @@ article:not(.beneficio-card) > p {
         1;
 }
 
-
 /* ==================================================
    BOTONES DE DESTINOS
    ================================================== */
@@ -2410,7 +2502,6 @@ button:focus-visible {
         4px;
 }
 
-
 /* ==================================================
    ESTADO ACTIVO
    ================================================== */
@@ -2433,7 +2524,6 @@ button[aria-expanded="true"] {
         var(--color-principal);
 }
 
-
 /* ==============================
    SECCIONES DESPLEGABLES
    ============================== */
@@ -2451,7 +2541,6 @@ button[aria-expanded="true"] {
     scroll-margin-top:
         20px;
 }
-
 
 /* ==================================================
    GALERÍAS DE DESTINOS
@@ -2482,7 +2571,6 @@ button[aria-expanded="true"] {
     width:
         100%;
 }
-
 
 /* ==================================================
    TARJETAS DE DESTINOS
@@ -2593,8 +2681,10 @@ button[aria-expanded="true"] {
 
     text-align:
         center;
-}
 
+    overflow-wrap:
+        anywhere;
+}
 
 /* ==================================================
    COMPATIBILIDAD CON TARJETAS ANTERIORES
@@ -2705,8 +2795,10 @@ button[aria-expanded="true"] {
 
     text-align:
         center;
-}
 
+    overflow-wrap:
+        anywhere;
+}
 
 /* ==============================
    FOOTER PREMIUM
@@ -2734,6 +2826,9 @@ footer {
 
     overflow:
         hidden;
+
+    width:
+        100%;
 }
 
 .footer-contenido {
@@ -2754,6 +2849,14 @@ footer {
 
     text-align:
         left;
+
+    width:
+        100%;
+}
+
+.footer-marca {
+    min-width:
+        0;
 }
 
 .footer-marca h2 {
@@ -2795,6 +2898,9 @@ footer {
 
     max-width:
         400px;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .footer-columna {
@@ -2879,6 +2985,9 @@ footer {
 
     margin:
         5px 0;
+
+    overflow-wrap:
+        anywhere;
 }
 
 .footer-final .footer-frase {
@@ -2888,7 +2997,6 @@ footer {
     letter-spacing:
         0.5px;
 }
-
 
 /* ==============================
    FOCO PARA ACCESIBILIDAD
@@ -2903,7 +3011,6 @@ button:focus-visible {
         4px;
 }
 
-
 /* ==================================================
    TABLETAS
    ================================================== */
@@ -2912,12 +3019,12 @@ button:focus-visible {
 
     .beneficios {
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(2, minmax(0, 1fr));
     }
 
     .redes-grid {
         grid-template-columns:
-            repeat(2, 1fr);
+            repeat(2, minmax(0, 1fr));
     }
 
     .contacto-grid {
@@ -2930,7 +3037,6 @@ button:focus-visible {
             1.5fr 1fr 1fr;
     }
 }
-
 
 /* ==================================================
    TABLETAS PEQUEÑAS
@@ -3035,7 +3141,6 @@ button:focus-visible {
     }
 }
 
-
 /* ==================================================
    CELULARES
    ================================================== */
@@ -3076,6 +3181,11 @@ button:focus-visible {
             anywhere;
     }
 
+    nav {
+        margin-bottom:
+            14px;
+    }
+
     nav ul {
         display:
             grid;
@@ -3093,14 +3203,17 @@ button:focus-visible {
     nav li {
         width:
             100%;
+
+        min-width:
+            0;
     }
 
     nav a {
-        display:
-            flex;
-
         align-items:
             center;
+
+        display:
+            flex;
 
         justify-content:
             center;
@@ -3109,10 +3222,10 @@ button:focus-visible {
             13px;
 
         min-height:
-            38px;
+            42px;
 
         padding:
-            7px 6px;
+            7px 5px;
 
         width:
             100%;
@@ -3131,8 +3244,8 @@ button:focus-visible {
         line-height:
             1.45;
 
-        padding-bottom:
-            18px;
+        padding:
+            0 5px 18px;
     }
 
     .hero {
@@ -3278,6 +3391,9 @@ button:focus-visible {
 
         padding:
             10px 18px;
+
+        max-width:
+            100%;
     }
 
     #por-que {
@@ -3369,8 +3485,10 @@ button:focus-visible {
 
         padding:
             11px 19px;
-    }
 
+        max-width:
+            100%;
+    }
 
     /* ==============================
        REDES EN CELULAR
@@ -3436,7 +3554,6 @@ button:focus-visible {
             8px;
     }
 
-
     /* ==============================
        CONTACTO EN CELULAR
        ============================== */
@@ -3487,7 +3604,6 @@ button:focus-visible {
         line-height:
             1.4;
     }
-
 
     /* ==============================
        COMUNIDAD EN CELULAR
@@ -3547,7 +3663,7 @@ button:focus-visible {
     .campo-formulario input[type="text"],
     .campo-formulario textarea {
         font-size:
-            14px;
+            16px;
 
         padding:
             11px 12px;
@@ -3633,10 +3749,8 @@ button:focus-visible {
             14px;
     }
 
-
     /* ==============================
        GALERÍA GENERAL
-       UNA SOLA COLUMNA
        ============================== */
 
     #galeria {
@@ -3701,7 +3815,6 @@ button:focus-visible {
         margin:
             0;
     }
-
 
     /* ==============================
        DESTINOS
@@ -3775,7 +3888,6 @@ button:focus-visible {
             1.5;
     }
 
-
     /* ==============================
        BOTONES EN CELULAR
        ============================== */
@@ -3802,10 +3914,8 @@ button:focus-visible {
             100%;
     }
 
-
     /* ==============================
        GALERÍAS DE DESTINOS
-       UNA SOLA COLUMNA
        ============================== */
 
     #galeria-playa,
@@ -3830,7 +3940,6 @@ button:focus-visible {
         margin-top:
             20px;
     }
-
 
     /* ==============================
        TARJETAS DE DESTINOS
@@ -3886,7 +3995,6 @@ button:focus-visible {
         padding:
             10px;
     }
-
 
     /* ==============================
        FOOTER
@@ -3968,7 +4076,6 @@ button:focus-visible {
     }
 }
 
-
 /* ==================================================
    PANTALLAS MUY PEQUEÑAS
    ================================================== */
@@ -3996,7 +4103,7 @@ button:focus-visible {
             6px 5px;
 
         min-height:
-            36px;
+            38px;
     }
 
     .hero {
@@ -4065,10 +4172,8 @@ button:focus-visible {
     }
 }
 
-
 /* ==================================================
    DISPOSITIVOS TÁCTILES
-   Evita movimientos incómodos por hover
    ================================================== */
 
 @media (hover: none) and (pointer: coarse) {
@@ -4078,7 +4183,8 @@ button:focus-visible {
     .destino-card:hover,
     .playa-card:hover,
     article:not(.beneficio-card):hover,
-    #presentacion:hover {
+    #presentacion:hover,
+    .contacto-item:hover {
         transform:
             none;
     }
